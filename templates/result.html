@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Transcript Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  </head>
+<body>
+  <header class="site-header">
+    <div class="logo">🎬 Auto Subtitle Generator</div>
+    <nav class="nav-links">
+      <a href="/">Home</a>
+              <a href="/visualizations">Visualizations</a>
+      <a href="/about">About</a>
+    </nav>
+    <div id="navbar-loader" style="display: none;">
+      <div class="dot-loader"><span>.</span><span>.</span><span>.</span></div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <section style="max-width: 800px; margin: 2rem auto; color: #eee;">
+      <div class="transcript-container">
+        <div class="transcript-header">
+          <h1>Transcript for: {{ filename }}</h1>
+        </div>
+        
+        <div class="transcript-text">
+          {{ transcript }}
+        </div>
+        
+        <!-- Waveform Visualization -->
+        <div class="waveform-section">
+          <h3>🎵 Audio Timeline Visualization</h3>
+          <div id="waveform-container" style="width: 100%; height: 300px; margin: 1rem 0;"></div>
+          <p class="waveform-info">Click on the timeline to see subtitles at specific times</p>
+        </div>
+        
+        {% if subtitle_file %}
+          <div class="download-section">
+            <p style="margin: 0;">📥 Download Subtitle:
+              <a href="{{ url_for('static', filename='subtitles/' + subtitle_file) }}" download style="color: #ffa07a;">{{ subtitle_file }}</a>
+            </p>
+          </div>
+        {% endif %}
+        
+        <div style="margin-top: 2rem; text-align: center;">
+          <a href="/" class="btn">⬅ Back to Home</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; 2025 Subtitle Generator. Built using Python & Flask.</p>
+  </footer>
+
+  <script>
+    // Waveform Visualization
+    document.addEventListener('DOMContentLoaded', function() {
+      const filename = '{{ filename }}';
+      const transcript = `{{ transcript }}`;
+      
+      // Fetch waveform data
+      fetch(`/waveform-data/${encodeURIComponent(filename)}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            console.error('Error:', data.error);
+            return;
+          }
+          
+          createWaveformVisualization(data.segments, transcript);
+        })
+        .catch(error => {
+          console.error('Error fetching waveform data:', error);
+        });
+    });
+
+    function createWaveformVisualization(segments, transcript) {
+      if (!segments || segments.length === 0) return;
+      
+      // Create timeline data
+      const timelineData = [];
+      const subtitleData = [];
+      
+      // Generate timeline points
+      const totalDuration = Math.max(...segments.map(s => s.end));
+      const timePoints = [];
+      for (let i = 0; i <= totalDuration; i += 0.1) {
+        timePoints.push(i);
+      }
+      
+      // Create subtitle overlay data
+      segments.forEach((segment, index) => {
+        subtitleData.push({
+          x: [segment.start, segment.end],
+          y: [0.8, 0.8],
+          mode: 'lines',
+          line: { color: '#ffa07a', width: 8 },
+          name: `Subtitle ${index + 1}`,
+          hoverinfo: 'text',
+          text: segment.text,
+          showlegend: false
+        });
+      });
+      
+      // Create main timeline
+      const mainTimeline = {
+        x: timePoints,
+        y: Array(timePoints.length).fill(0.5),
+        mode: 'lines',
+        line: { color: '#5c80bc', width: 2 },
+        name: 'Timeline',
+        hoverinfo: 'none',
+        showlegend: false
+      };
+      
+      // Add click events for subtitle segments
+      const layout = {
+        title: 'Audio Timeline with Subtitle Segments',
+        xaxis: {
+          title: 'Time (seconds)',
+          gridcolor: 'rgba(255, 255, 255, 0.1)',
+          zerolinecolor: 'rgba(255, 255, 255, 0.3)',
+          color: '#fff'
+        },
+        yaxis: {
+          title: '',
+          range: [0, 1],
+          gridcolor: 'rgba(255, 255, 255, 0.1)',
+          zerolinecolor: 'rgba(255, 255, 255, 0.3)',
+          color: '#fff',
+          showticklabels: false
+        },
+        plot_bgcolor: 'rgba(0, 0, 0, 0.8)',
+        paper_bgcolor: 'rgba(0, 0, 0, 0.8)',
+        font: { color: '#fff' },
+        margin: { t: 50, b: 50, l: 50, r: 50 },
+        hovermode: 'closest'
+      };
+      
+      const data = [mainTimeline, ...subtitleData];
+      
+      Plotly.newPlot('waveform-container', data, layout, {
+        responsive: true,
+        displayModeBar: true,
+        modeBarButtonsToRemove: ['pan2d', 'lasso2d', 'select2d']
+      });
+      
+      // Add click event to jump to specific times
+      document.getElementById('waveform-container').on('plotly_click', function(data) {
+        const point = data.points[0];
+        if (point.data.name && point.data.name.startsWith('Subtitle')) {
+          // Find the corresponding subtitle text
+          const subtitleIndex = parseInt(point.data.name.split(' ')[1]) - 1;
+          const subtitleText = segments[subtitleIndex].text;
+          
+          // Highlight the subtitle in the transcript
+          highlightSubtitleInTranscript(subtitleText);
+        }
+      });
+    }
+    
+    function highlightSubtitleInTranscript(subtitleText) {
+      const transcriptDiv = document.querySelector('.transcript-text');
+      const text = transcriptDiv.innerHTML;
+      
+      // Remove previous highlights
+      const cleanText = text.replace(/<mark[^>]*>(.*?)<\/mark>/g, '$1');
+      
+      // Add new highlight
+      const highlightedText = cleanText.replace(
+        new RegExp(subtitleText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'),
+        `<mark style="background-color: #ffa07a; color: #000; padding: 2px 4px; border-radius: 3px;">${subtitleText}</mark>`
+      );
+      
+      transcriptDiv.innerHTML = highlightedText;
+      
+      // Scroll to the highlighted text
+      const markElement = transcriptDiv.querySelector('mark');
+      if (markElement) {
+        markElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Subtitle Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans&family=Playfair+Display:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="logo">🎬 Auto Subtitle Generator</div>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <nav class="nav-links">
+        <a href="/">Home</a>
+        <a href="/visualizations">Visualizations</a>
+        <a href="/about">About</a>
+      </nav>
+    </div>
+  </header>
+
+
+  <div class="glass-box">
+    <h1>Generate Subtitles from Audio or Video</h1>
+    <p>Upload your media file and get subtitle text using AI.</p>
+
+    <form id="uploadForm" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data" class="upload-form">
+      <input type="file" name="file" id="file" accept=".mp3,.wav,.mp4,.m4a" required>
+      <button type="submit" class="btn">Generate Subtitles</button>
+    </form>
+
+    <div id="loading" style="display: none; margin-top: 1rem;">
+      <div class="dot-loader"><span>.</span><span>.</span><span>.</span></div>
+      <p style="margin-top: 0.8rem;">⏳ Generating subtitles... please wait</p>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <p>&copy; 2025 Subtitle Generator. Built using Python & Flask.</p>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $('#uploadForm').on('submit', function () {
+        $('#loading').fadeIn();
+      });
+
+      $('#file').on('change', function () {
+        const name = $(this).val().split("\\").pop();
+        $('#file-name').text(`📁 Selected: ${name}`);
+      });
+    });
+  </script>
+</body>
+</html>

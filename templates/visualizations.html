@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Visualizations & Analytics</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans&family=Playfair+Display:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    /* New CSS for horizontal alignment */
+    .viz-grid,
+    .how-to-content {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .viz-card,
+    .step {
+      flex: 1 1 30%; /* Ensures 3 items per line on larger screens */
+      min-width: 250px; /* Prevents cards from becoming too narrow on smaller screens */
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="logo">🎬 Auto Subtitle Generator</div>
+    <nav class="nav-links">
+      <a href="/">Home</a>
+      <a href="/visualizations">Visualizations</a>
+      <a href="/about">About</a>
+    </nav>
+  </header>
+
+  <main class="main-content">
+    <div class="visualizations-container">
+      <div class="page-header">
+        <h1>📊 Key Visualizations & Analytics</h1>
+        <p>Explore the most important insights for your audio content</p>
+      </div>
+
+      <section class="viz-section">
+        <div class="section-header">
+          <h2>Core Analytics</h2>
+        </div>
+        
+        <div class="viz-grid">
+          <div class="viz-card">
+            <h3>📝 Word Frequency Heatmap</h3>
+            <div class="viz-placeholder">
+              <div class="demo-chart" id="word-frequency-chart"></div>
+              <p>Most common words highlighted by frequency and importance.</p>
+            </div>
+          </div>
+          
+          <div class="viz-card">
+            <h3>🌐 Language Detection</h3>
+            <div class="viz-placeholder">
+              <div class="demo-chart" id="language-chart"></div>
+              <p>Confidence scores for detected languages and dialects.</p>
+            </div>
+          </div>
+          
+          <div class="viz-card">
+            <h3>📊 Performance & Quality Metrics</h3>
+            <div class="viz-placeholder">
+              <div class="demo-chart" id="combined-chart"></div>
+              <p>Transcription confidence, audio quality, and processing time.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <hr style="margin-top: 40px; margin-bottom: 40px; border-top: 1px solid rgba(255, 255, 255, 0.1);" />
+
+      <section class="how-to-section">
+        <div class="section-header">
+          <h2>🚀 How to Use These Visualizations</h2>
+        </div>
+        <div class="how-to-content">
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h4>Upload Your Audio/Video</h4>
+              <p>Start by uploading your media file on the home page.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h4>Get Your Results</h4>
+              <p>Receive transcript, subtitles, and access to all visualizations.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h4>Explore Insights</h4>
+              <p>Use these charts to understand your content better.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; 2025 Subtitle Generator. Built using Python & Flask.</p>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeDemoCharts();
+    });
+
+    function initializeDemoCharts() {
+      // Word Frequency Chart
+      const wordData = {
+        x: ['the', 'and', 'to', 'of', 'in', 'that', 'is', 'it', 'with', 'for'],
+        y: [45, 38, 32, 28, 25, 22, 20, 18, 16, 14],
+        type: 'bar',
+        marker: {
+          color: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3', '#ff9f43']
+        }
+      };
+
+      const wordLayout = {
+        title: 'Most Common Words',
+        xaxis: { title: 'Words' },
+        yaxis: { title: 'Frequency' },
+        plot_bgcolor: 'rgba(0, 0, 0, 0.8)',
+        paper_bgcolor: 'rgba(0, 0, 0, 0.8)',
+        font: { color: '#ffffff' }
+      };
+
+      Plotly.newPlot('word-frequency-chart', [wordData], wordLayout, {responsive: true});
+
+      // Language Detection Chart
+      const languageData = [{
+        values: [85, 10, 5],
+        labels: ['English', 'Spanish', 'French'],
+        type: 'pie',
+        marker: {
+          colors: ['#ff6b6b', '#4ecdc4', '#45b7d1']
+        }
+      }];
+
+      const languageLayout = {
+        title: 'Language Detection Confidence',
+        plot_bgcolor: 'rgba(0, 0, 0, 0.8)',
+        paper_bgcolor: 'rgba(0, 0, 0, 0.8)',
+        font: { color: '#ffffff' }
+      };
+
+      Plotly.newPlot('language-chart', languageData, languageLayout, {responsive: true});
+
+      // Combined Metrics Chart
+      const combinedData = [{
+        x: ['Transcription Confidence', 'Audio Clarity', 'Processing Speed'],
+        y: [88, 92, 75],
+        type: 'bar',
+        marker: {
+          color: ['#4ecdc4', '#45b7d1', '#ff6b6b']
+        }
+      }];
+
+      const combinedLayout = {
+        title: 'Performance & Quality Metrics',
+        xaxis: { title: 'Metric' },
+        yaxis: { title: 'Score (%)' },
+        plot_bgcolor: 'rgba(0, 0, 0, 0.8)',
+        paper_bgcolor: 'rgba(0, 0, 0, 0.8)',
+        font: { color: '#ffffff' }
+      };
+
+      Plotly.newPlot('combined-chart', combinedData, combinedLayout, {responsive: true});
+    }
+  </script>
+</body>
+</html>

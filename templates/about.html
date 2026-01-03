@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>About</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans&family=Playfair+Display:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <header class="site-header">
+    <div class="logo">🎬 Auto Subtitle Generator</div>
+    <nav class="nav-links">
+      <a href="/">Home</a>
+              <a href="/visualizations">Visualizations</a>
+      <a href="/about">About</a>
+    </nav>
+  </header>
+
+  <main class="main-content">
+    <h1>About This App</h1>
+    <p>This subtitle generator uses OpenAI's Whisper model for transcription. Built with Flask and Python.</p>
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; 2025 Subtitle Generator. Built using Python & Flask.</p>
+  </footer>
+</body>
+</html>
